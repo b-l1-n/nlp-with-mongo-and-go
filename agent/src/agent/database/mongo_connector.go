@@ -11,26 +11,23 @@ import (
 	"os"
 )
 
-var client *mongo.Client
-var ctx context.Context
-
 func Insert(learning dtos.Learning) bool {
-	openConnection()
+	client, ctx := openConnection()
 	log.Println(learning)
-	closeConnection()
+	closeConnection(client, ctx)
 
 	return true
 }
 
 func Search(text string) dtos.Learning {
-	openConnection()
+	client, ctx := openConnection()
 	log.Println(text)
-	closeConnection()
+	closeConnection(client, ctx)
 
 	return dtos.Learning{Intent: text}
 }
 
-func openConnection() {
+func openConnection() (*mongo.Client, context.Context) {
 	mongoHost, exists := os.LookupEnv("MONGO_HOST")
     if !exists {
         mongoHost = "localhost"
@@ -50,12 +47,11 @@ func openConnection() {
 	}
 
 	fmt.Println("Connected to MongoDB!")
+
+	return client, ctx
 }
 
-func closeConnection() {
-	if client == nil {
-		log.Println("nulo")
-	}
+func closeConnection(client *mongo.Client, ctx context.Context) {
 	err := client.Disconnect(ctx)
 
 	if err != nil {
