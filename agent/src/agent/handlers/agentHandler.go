@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	mongoConnector "../database"
-	"../dtos"
+	"agent/database"
+	"agent/dtos"
 )
 
 func DetectIntent(response http.ResponseWriter, request *http.Request) {

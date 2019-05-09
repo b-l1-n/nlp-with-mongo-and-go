@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"time"
-
-	"../dtos"
+	"agent/dtos"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"os"
 )
 
 var client *mongo.Client
@@ -31,8 +31,13 @@ func Search(text string) dtos.Learning {
 }
 
 func openConnection() {
+	mongoHost, exists := os.LookupEnv("MONGO_HOST")
+    if !exists {
+        mongoHost = "localhost"
+    }
+
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://" + mongoHost + ":27017"))
 
 	if err != nil {
 		log.Fatal(err)

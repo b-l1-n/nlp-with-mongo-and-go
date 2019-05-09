@@ -1,0 +1,24 @@
+version: '3'
+services:
+  agent:
+    build:
+      context: agent
+    ports:
+      - "8080:8080"
+    environment:
+      AGENT_PACKAGE: agent
+    networks:
+      smart-assistant-network:
+        aliases:
+          - agent
+  mongo:
+    build:
+      context: mongo_db
+    ports:
+      - "27017:27017"
+    networks:
+      smart-assistant-network:
+        aliases:
+          - mongo
+networks:
+  smart-assistant-network:

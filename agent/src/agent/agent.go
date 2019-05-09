@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
-	"./handlers"
+	"agent/handlers"
 )
 
 func main() {
