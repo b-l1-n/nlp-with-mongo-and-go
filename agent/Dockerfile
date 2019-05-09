@@ -4,6 +4,8 @@ ENV SRC=/go/src
 RUN mkdir -p ${SRC}
 ADD src ${SRC}
 WORKDIR ${SRC}/agent
+RUN rm Gopkg.toml
+RUN rm Gopkg.lock
 RUN dep init
 RUN dep ensure -add "go.mongodb.org/mongo-driver/mongo"
 RUN go get -v
