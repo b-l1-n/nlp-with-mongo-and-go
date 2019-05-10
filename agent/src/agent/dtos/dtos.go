@@ -11,9 +11,9 @@ type UserEntry struct {
 }
 
 type Learning struct {
-	Intent string
-	Utterances []string
-	AgentResponse []string
+	Intent string `bson:"Intent"`
+	Utterances []string `bson:"Utterances"`
+	AgentResponse []string `bson:"AgentResponse"`
 }
 
 type Message struct {

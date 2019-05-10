@@ -1,11 +1,11 @@
 package agentHandler
 
 import (
-	"encoding/json"
-	"net/http"
-
-	"agent/database"
 	"agent/dtos"
+	"encoding/json"
+	"log"
+	"net/http"
+	"agent/database"
 )
 
 func DetectIntent(response http.ResponseWriter, request *http.Request) {
@@ -21,6 +21,8 @@ func LearnUtterance(response http.ResponseWriter, request *http.Request) {
 	switch request.Method {
 	case "POST":
 		insertIntoLearningDatabase(response, request)
+	case "GET":
+		retrieveLearningFromDatabase(response, request)
 	default:
 		returnMessage(response, request, "Method not allowed")
 	}
@@ -35,7 +37,7 @@ func insertIntoLearningDatabase(response http.ResponseWriter, request *http.Requ
 		panic(error)
 	}
 
-	ok := mongoConnector.Insert(learning)
+	ok := mongoConnector.InsertLearning(learning)
 
 	if ok {
 		conversion, error := json.Marshal(learning)
@@ -48,6 +50,31 @@ func insertIntoLearningDatabase(response http.ResponseWriter, request *http.Requ
 	}
 
 	response.Write(nil)
+}
+
+func retrieveLearningFromDatabase(response http.ResponseWriter, request *http.Request) {
+
+	intentKey, ok := request.URL.Query()["intent"]
+
+	if !ok || len(intentKey[0]) < 1 {
+		messageError := "Url Param 'intent' is missing"
+		log.Println(messageError)
+		response.WriteHeader(http.StatusBadRequest)
+		response.Write([]byte(messageError))
+	} else {
+		learning := mongoConnector.RetrieveLearning(intentKey[0])
+		if learning == nil {
+			response.WriteHeader(http.StatusBadRequest)
+			response.Write([]byte("No Learning Found"))
+		} else {
+			conversion, error := json.Marshal(learning)
+
+			if error != nil {
+				panic(error)
+			}
+			response.Write(conversion)
+		}
+	}
 }
 
 func searchInLearningDatabase(response http.ResponseWriter, request *http.Request) {
