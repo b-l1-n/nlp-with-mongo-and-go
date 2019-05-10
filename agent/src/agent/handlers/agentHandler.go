@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"math/rand"
 	"agent/database"
 )
 
@@ -79,7 +80,8 @@ func retrieveLearningFromDatabase(response http.ResponseWriter, request *http.Re
 
 func searchInLearningDatabase(response http.ResponseWriter, request *http.Request) {
 	userEntry := dtos.UserEntry{}
-
+	agentResponse := dtos.AgentResponse{}
+	
 	error := json.NewDecoder(request.Body).Decode(&userEntry)
 
 	if error != nil {
@@ -88,13 +90,22 @@ func searchInLearningDatabase(response http.ResponseWriter, request *http.Reques
 
 	matching := mongoConnector.Search(userEntry.Text)
 
-	messageResponse, error := json.Marshal(matching)
+
+	agentResponse.UserSaid = userEntry.Text
+	agentResponse.UserIntent = "Fallback"
+
+	if matching != nil {
+		agentResponse.UserIntent = matching.Intent
+		agentResponse.AgentResponse = matching.AgentResponse[rand.Intn(len(matching.AgentResponse))]
+	} 
+
+	messageResponse, error := json.Marshal(agentResponse)
 
 	if error != nil {
 		panic(error)
 	}
-
 	response.Write(messageResponse)
+	
 }
 
 func returnMessage(response http.ResponseWriter, request *http.Request, message string) {

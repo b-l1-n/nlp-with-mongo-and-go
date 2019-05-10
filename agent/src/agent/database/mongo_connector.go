@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"time"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -57,10 +56,7 @@ func RetrieveLearning(intentName string) *dtos.Learning {
 
 	var result dtos.Learning
 	filter := bson.D{{ "Intent" , bson.D{{ "$eq" , intentName }}  }}
-	log.Println(filter)
 	err := collection.FindOne(ctx, filter).Decode(&result)
-	log.Println(result)
-	log.Println(err)
 	if err != nil {
 		log.Println(err)
 		return nil
@@ -70,12 +66,26 @@ func RetrieveLearning(intentName string) *dtos.Learning {
 	return &result
 }
 
-func Search(text string) dtos.Learning {
+func Search(text string) *dtos.Learning {
 	client, ctx := openConnection()
-	log.Println(text)
+	log.Println("Trying to retrieve Response to utterance : " + text)
+	collection := client.Database(intentDatabase).Collection(intentsCollection)
+
+	if collection == nil {
+		log.Println("No collection with name " + intentsCollection + " in database " + intentDatabase)
+		return nil
+	}
+
+	var result dtos.Learning
+	filter := bson.D{{ "$text" , bson.D{{ "$search" , text }}  }}
+	err := collection.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
 	closeConnection(client, ctx)
 
-	return dtos.Learning{Intent: text}
+	return &result
 }
 
 func openConnection() (*mongo.Client, context.Context) {
