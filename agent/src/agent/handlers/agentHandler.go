@@ -91,6 +91,7 @@ func searchInLearningDatabase(response http.ResponseWriter, request *http.Reques
 	matching := mongoConnector.Search(userEntry.Text)
 
 
+	agentResponse.AgentResponse = "Lo siento, no te he entendio"
 	agentResponse.UserSaid = userEntry.Text
 	agentResponse.UserIntent = "Fallback"
 
