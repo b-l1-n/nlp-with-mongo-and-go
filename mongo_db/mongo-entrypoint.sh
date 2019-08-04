@@ -49,3 +49,4 @@ mongo intents_db --eval 'db.intents.insertMany(
     ]
 )'
 mongo intents_db --eval 'db.intents.createIndex( { "Utterances" : "text" } )'
+mongo intents_db --eval 'db.entities.createIndex( { "Values" : "text" } )'

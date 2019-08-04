@@ -24,6 +24,11 @@ type Message struct {
 }
 
 type Entity struct {
+	Name string
+	Values []string
+}
+
+type EntityDB struct {
 	Name string `bson:"Name"`
-	Values []string `bson:"Values"`
+	Values string `bson:"Values"`
 }

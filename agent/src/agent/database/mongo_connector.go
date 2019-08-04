@@ -54,15 +54,21 @@ func InsertEntity(entity dtos.Entity) bool {
 		operationStatus = false
 	}
 
-	_, err := collection.InsertOne(ctx, entity)
+	for _, entityValue := range entity.Values {
+		entityDB := dtos.EntityDB{}
+		entityDB.Name = entity.Name
+		entityDB.Values = entityValue
 
-	if err != nil {
-		operationStatus = false
-		log.Println(err)
-	}
+		_, err := collection.InsertOne(ctx, entityDB)
 
-	if operationStatus {
-		log.Println("Learning object inserted into Database")
+		if err != nil {
+			operationStatus = false
+			log.Println(err)
+		}
+
+		if operationStatus {
+			log.Println("Learning object inserted into Database")
+		}
 	}
 
 	closeConnection(client, ctx)
@@ -113,15 +119,28 @@ func RetrieveEntities() []*dtos.Entity {
 	for cur.Next(ctx) {
     
 		// create a value into which the single document can be decoded
-		var entity dtos.Entity
-		err := cur.Decode(&entity)
+		var entityDB dtos.EntityDB
+		err := cur.Decode(&entityDB)
 		if err != nil {
 			log.Fatal(err)
 		}
-	
-		entities = append(entities, &entity)
+		
+		isNew := true;
+		for _, externalEntity := range entities {
+			if externalEntity.Name == entityDB.Name {
+				externalEntity.Values = append(externalEntity.Values, entityDB.Values)
+				isNew = false
+			}
+		}
+
+		if isNew {
+			var externalEntity dtos.Entity
+			externalEntity.Name = entityDB.Name
+			externalEntity.Values = []string{entityDB.Values}
+			entities = append(entities, &externalEntity)
+		}
 	}
-	
+
 	if err := cur.Err(); err != nil {
 		log.Fatal(err)
 	}
@@ -158,6 +177,48 @@ func Search(text string) *dtos.Learning {
 	closeConnection(client, ctx)
 
 	return &result
+}
+
+// db.entities.find( {$text : { $search : "Me gusta Die Hard los lunes" } }, {_id: 0 , Name : 1 ,Values : { $elemMatch : { $regex : /(Me gusta Die Hard los lunes).toLowerCase()/i }}})
+
+func ExtractEntities(text string) []*dtos.EntityDB {
+	client, ctx := openConnection()
+	log.Println("Trying to extract Entities from utterance : " + text)
+	collection := client.Database(intentDatabase).Collection(entitiesCollection)
+
+	if collection == nil {
+		log.Println("No collection with name " + entitiesCollection + " in database " + intentDatabase)
+		return nil
+	}
+
+	var result []*dtos.EntityDB
+	filter := bson.D{{ "$text" , bson.D{{ "$search" , text }}  }}
+	cur, err := collection.Find(ctx, filter)
+
+	for cur.Next(ctx) {
+		var entityDB dtos.EntityDB
+		err := cur.Decode(&entityDB)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		result = append(result, &entityDB)
+	}
+		
+	if err := cur.Err(); err != nil {
+		log.Fatal(err)
+	}
+	
+	cur.Close(ctx)
+
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	closeConnection(client, ctx)
+
+	return result
 }
 
 func openConnection() (*mongo.Client, context.Context) {
