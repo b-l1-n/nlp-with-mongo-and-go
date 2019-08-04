@@ -14,6 +14,7 @@ import (
 
 var intentDatabase string = "intents_db"
 var intentsCollection string = "intents"
+var entitiesCollection string = "entities"
 
 func InsertLearning(learning dtos.Learning) bool {
 	client, ctx := openConnection()
@@ -27,6 +28,33 @@ func InsertLearning(learning dtos.Learning) bool {
 	}
 
 	_, err := collection.InsertOne(ctx, learning)
+
+	if err != nil {
+		operationStatus = false
+		log.Println(err)
+	}
+
+	if operationStatus {
+		log.Println("Learning object inserted into Database")
+	}
+
+	closeConnection(client, ctx)
+
+	return operationStatus
+}
+
+func InsertEntity(entity dtos.Entity) bool {
+	client, ctx := openConnection()
+	var operationStatus bool = true
+	log.Println("Trying to insert Learning object into Database")
+	collection := client.Database(intentDatabase).Collection(entitiesCollection)
+
+	if collection == nil {
+		log.Println("No collection with name " + entitiesCollection + " in database " + intentDatabase)
+		operationStatus = false
+	}
+
+	_, err := collection.InsertOne(ctx, entity)
 
 	if err != nil {
 		operationStatus = false
@@ -64,6 +92,50 @@ func RetrieveLearning(intentName string) *dtos.Learning {
 	closeConnection(client, ctx)
 
 	return &result
+}
+
+func RetrieveEntities() []*dtos.Entity {
+	
+	client, ctx := openConnection()
+	log.Println("Trying to retrieve Entities")
+	collection := client.Database(intentDatabase).Collection(entitiesCollection)
+
+	if collection == nil {
+		log.Println("No collection with name " + entitiesCollection + " in database " + intentDatabase)
+		return nil
+	}
+
+	var entities []*dtos.Entity
+	filter := bson.D{{ }}
+	cur, err := collection.Find(ctx, filter)
+
+	// Loop over the cursor retrieved
+	for cur.Next(ctx) {
+    
+		// create a value into which the single document can be decoded
+		var entity dtos.Entity
+		err := cur.Decode(&entity)
+		if err != nil {
+			log.Fatal(err)
+		}
+	
+		entities = append(entities, &entity)
+	}
+	
+	if err := cur.Err(); err != nil {
+		log.Fatal(err)
+	}
+	
+	// Close the cursor once finished
+	cur.Close(ctx)
+
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	closeConnection(client, ctx)
+
+	return entities
 }
 
 func Search(text string) *dtos.Learning {

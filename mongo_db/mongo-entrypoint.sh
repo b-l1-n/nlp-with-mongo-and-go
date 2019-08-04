@@ -15,7 +15,8 @@ mongo intents_db --eval 'db.intents.insertMany(
             "AgentResponse": [
                 "Hola!",
                 "Muy buenas!"
-            ]
+            ],
+            "AgentType" : "Trivial Agent"
         },
         {
             "Intent": "goodbye",
@@ -28,7 +29,8 @@ mongo intents_db --eval 'db.intents.insertMany(
             "AgentResponse": [
                 "Que te vaya bonito!",
                 "Adiós!"
-            ]
+            ],
+            "AgentType" : "Trivial Agent"
         },
         {
             "Intent": "agentName",
@@ -41,7 +43,8 @@ mongo intents_db --eval 'db.intents.insertMany(
             "AgentResponse": [
                 "No tengo nombre, tendré que pensar en alguno ... que tal ¿Mr. Robot?",
                 "No lo se, acaban de crearme :-/"
-            ]
+            ],
+            "AgentType" : "Trivial Agent"
         }
     ]
 )'
