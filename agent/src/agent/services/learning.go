@@ -25,7 +25,7 @@ func InsertIntoLearningDatabase(response http.ResponseWriter, request *http.Requ
 		if error != nil {
 			panic(error)
 		}
-
+		response.Header().Set("Content-Type", "application/json")
 		response.Write(conversion)
 	}
 
@@ -52,6 +52,7 @@ func RetrieveLearningFromDatabase(response http.ResponseWriter, request *http.Re
 			if error != nil {
 				panic(error)
 			}
+			response.Header().Set("Content-Type", "application/json")
 			response.Write(conversion)
 		}
 	}

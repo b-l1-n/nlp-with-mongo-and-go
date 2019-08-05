@@ -46,6 +46,6 @@ func returnMessage(response http.ResponseWriter, request *http.Request, message 
 	if error != nil {
 		panic(error)
 	}
-
+	response.Header().Set("Content-Type", "application/json")
 	response.Write(bodyMessage)
 }

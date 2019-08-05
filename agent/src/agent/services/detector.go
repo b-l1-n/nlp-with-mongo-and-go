@@ -19,6 +19,7 @@ func DetectIntent(response http.ResponseWriter, request *http.Request) {
 	}
 
 	matching := mongoConnector.Search(userEntry.Text)
+	matching_entities := mongoConnector.ExtractEntities(userEntry.Text)
 
 
 	agentResponse.AgentResponse = "Lo siento, no te he entendio"
@@ -29,6 +30,9 @@ func DetectIntent(response http.ResponseWriter, request *http.Request) {
 		agentResponse.UserIntent = matching.Intent
 		agentResponse.AgentResponse = matching.AgentResponse[rand.Intn(len(matching.AgentResponse))]
 		agentResponse.AgentType = matching.AgentType
+		if matching_entities != nil {
+			agentResponse.Entities = matching_entities
+		}
 	} 
 
 	messageResponse, error := json.Marshal(agentResponse)
@@ -36,6 +40,7 @@ func DetectIntent(response http.ResponseWriter, request *http.Request) {
 	if error != nil {
 		panic(error)
 	}
+	response.Header().Set("Content-Type", "application/json")
 	response.Write(messageResponse)
 	
 }

@@ -5,7 +5,7 @@ type AgentResponse struct {
 	UserSaid string
 	UserIntent string
 	AgentType string
-	entities []Entity
+	Entities []*EntityDB
 }
 
 type UserEntry struct {

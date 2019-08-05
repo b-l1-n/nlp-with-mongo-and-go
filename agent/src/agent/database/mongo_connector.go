@@ -179,7 +179,6 @@ func Search(text string) *dtos.Learning {
 	return &result
 }
 
-// db.entities.find( {$text : { $search : "Me gusta Die Hard los lunes" } }, {_id: 0 , Name : 1 ,Values : { $elemMatch : { $regex : /(Me gusta Die Hard los lunes).toLowerCase()/i }}})
 
 func ExtractEntities(text string) []*dtos.EntityDB {
 	client, ctx := openConnection()

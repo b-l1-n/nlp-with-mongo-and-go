@@ -24,7 +24,7 @@ func CreateNewEntity(response http.ResponseWriter, request *http.Request) {
 		if error != nil {
 			panic(error)
 		}
-
+		response.Header().Set("Content-Type", "application/json")
 		response.Write(conversion)
 	}
 
@@ -43,6 +43,7 @@ func RetrieveAllAvailableEntities(response http.ResponseWriter, request *http.Re
 		if error != nil {
 			panic(error)
 		}
+		response.Header().Set("Content-Type", "application/json")
 		response.Write(conversion)
 	}
 
