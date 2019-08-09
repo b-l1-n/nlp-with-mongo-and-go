@@ -38,7 +38,8 @@ curl -X POST \
   "AgentResponse": [
     "Hola!",
     "Muy buenas!"
-  ]
+  ],
+  "AgentType" : "Trivial Agent"
 }'
 ```
 
@@ -51,4 +52,21 @@ curl -X POST \
   -d '{
         "Text": "holi" 
     }'
+```
+
+## Advanced Knowledge
+
+In order to create entities that our agent can extract from the user utterance, we can add this information as follow:
+
+```
+curl -X POST \
+  http://localhost:8080/agent/v1/entities \
+  -d '{
+  "Name" : "films",
+  "Values" : [
+  	"Django Unchained",
+  	"Inception",
+  	"Die Hard"
+  ]
+}'
 ```
